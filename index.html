@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="app.title">JSON Tools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">{}</div>
+            <h1 data-i18n="app.title">JSON Tools</h1>
+            <span class="tag">v1.0</span>
+        </header>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button class="btn btn-primary" id="btn-format" data-tooltip="Ctrl+Enter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h10M4 18h6"/>
+                    </svg>
+                    <span data-i18n="toolbar.format">Format</span>
+                </button>
+                <button class="btn" id="btn-minify">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <span data-i18n="toolbar.minify">Minify</span>
+                </button>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-group">
+                <button class="btn" id="btn-validate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"/>
+                        <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    <span data-i18n="toolbar.validate">Validate</span>
+                </button>
+                <button class="btn" id="btn-export" disabled data-tooltip data-i18n-tooltip="csv.exportBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span data-i18n="toolbar.export">Export CSV</span>
+                </button>
+            </div>
+
+            <div class="toolbar-divider"></div>
+
+            <div class="toolbar-group">
+                <button class="btn" id="btn-clear">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                    </svg>
+                    <span data-i18n="toolbar.clear">Clear</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panels -->
+        <div class="panels">
+            <!-- Input Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title" data-i18n="panel.input">Input JSON</span>
+                    <div class="panel-actions">
+                        <button class="btn btn-icon" id="btn-paste">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/>
+                                <rect x="8" y="2" width="8" height="4" rx="1"/>
+                            </svg>
+                            <span data-i18n="btn.paste">Paste</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="code-wrapper">
+                    <textarea class="code-input" id="input-json" data-i18n-placeholder="placeholder.input" placeholder="Paste or enter JSON data here..."></textarea>
+                </div>
+                <div class="error-message" id="input-error"></div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title" data-i18n="panel.output">Formatted Result</span>
+                    <div class="panel-actions">
+                        <button class="btn btn-icon" id="btn-copy">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                            </svg>
+                            <span data-i18n="btn.copy">Copy</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="code-wrapper">
+                    <pre class="code-output" id="output-json" data-i18n="panel.output">Formatted Result</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <div class="status-item" id="char-count">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span>0 <span data-i18n="status.chars">characters</span></span>
+                </div>
+                <div class="status-item" id="line-count">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                    <span>0 <span data-i18n="status.lines">lines</span></span>
+                </div>
+                <div class="status-item" id="size-info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>0 B</span>
+                </div>
+            </div>
+            <div class="status-right" id="validation-status">
+                <span class="status-pending">⏳ <span data-i18n="status.waiting">Waiting for input</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-banner" id="cookie-banner">
+        <div class="cookie-content">
+            <div class="cookie-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <div class="cookie-text">
+                <div class="cookie-title" data-i18n="cookie.title">We value your privacy</div>
+                <div class="cookie-description">
+                    <span data-i18n="cookie.desc">We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking "Accept All", you consent to our use of cookies. Read our Privacy Policy for more information.</span>
+                </div>
+            </div>
+            <div class="cookie-actions">
+                <button class="cookie-btn cookie-btn-accept" id="cookie-accept" data-i18n="cookie.accept">Accept All</button>
+                <button class="cookie-btn cookie-btn-settings" id="cookie-settings" data-i18n="cookie.settings">Settings</button>
+                <button class="cookie-btn cookie-btn-reject" id="cookie-reject" data-i18n="cookie.reject">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cookie Settings Panel -->
+    <div class="cookie-settings-overlay" id="cookie-settings-overlay"></div>
+    <div class="cookie-settings-panel" id="cookie-settings-panel">
+        <div class="cookie-settings-header">
+            <h3 data-i18n="cookie.settingsTitle">Cookie Settings</h3>
+            <button class="cookie-settings-close" id="cookie-settings-close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="cookie-settings-body">
+            <div class="cookie-category">
+                <div class="cookie-category-header">
+                    <div class="cookie-category-info">
+                        <div class="cookie-category-title" data-i18n="cookie.essential">Essential Cookies</div>
+                        <div class="cookie-category-desc" data-i18n="cookie.essentialDesc">These cookies are necessary for the website to function and cannot be switched off.</div>
+                    </div>
+                    <label class="cookie-toggle">
+                        <input type="checkbox" checked disabled>
+                        <span class="cookie-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="cookie-category">
+                <div class="cookie-category-header">
+                    <div class="cookie-category-info">
+                        <div class="cookie-category-title" data-i18n="cookie.analytics">Analytics Cookies</div>
+                        <div class="cookie-category-desc" data-i18n="cookie.analyticsDesc">These cookies help us understand how visitors interact with our website.</div>
+                    </div>
+                    <label class="cookie-toggle">
+                        <input type="checkbox" id="analytics-cookies">
+                        <span class="cookie-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="cookie-category">
+                <div class="cookie-category-header">
+                    <div class="cookie-category-info">
+                        <div class="cookie-category-title" data-i18n="cookie.marketing">Marketing Cookies</div>
+                        <div class="cookie-category-desc" data-i18n="cookie.marketingDesc">These cookies may be set by our advertising partners for relevant ads.</div>
+                    </div>
+                    <label class="cookie-toggle">
+                        <input type="checkbox" id="marketing-cookies">
+                        <span class="cookie-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="cookie-category">
+                <div class="cookie-category-header">
+                    <div class="cookie-category-info">
+                        <div class="cookie-category-title" data-i18n="cookie.functional">Functional Cookies</div>
+                        <div class="cookie-category-desc" data-i18n="cookie.functionalDesc">These cookies enable enhanced functionality and personalization.</div>
+                    </div>
+                    <label class="cookie-toggle">
+                        <input type="checkbox" id="functional-cookies">
+                        <span class="cookie-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="cookie-settings-footer">
+            <button class="btn" id="cookie-settings-cancel" data-i18n="cookie.cancel">Cancel</button>
+            <button class="btn btn-primary" id="cookie-settings-save" data-i18n="cookie.save">Save Preferences</button>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div class="privacy-modal-overlay" id="privacy-modal-overlay"></div>
+    <div class="privacy-modal" id="privacy-modal">
+        <div class="privacy-modal-header">
+            <h2 data-i18n="privacy.title">Privacy Policy</h2>
+            <button class="privacy-modal-close" id="privacy-modal-close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="privacy-modal-body">
+            <h3 data-i18n="privacy.infoCollect">1. Information We Collect</h3>
+            <p data-i18n="privacy.infoCollectDesc">We collect information you provide directly to us, such as when you use our JSON formatting and CSV export tools.</p>
+            
+            <h3 data-i18n="privacy.infoUse">2. How We Use Your Information</h3>
+            <p data-i18n="privacy.infoUseDesc">We use the information we collect to provide, maintain, and improve our services, process transactions, and analyze usage trends.</p>
+
+            <h3 data-i18n="privacy.cookies">3. Cookies and Tracking Technologies</h3>
+            <p data-i18n="privacy.cookiesDesc">We use cookies and similar tracking technologies. Cookies are files with a small amount of data which may include an anonymous unique identifier.</p>
+            <ul>
+                <li data-i18n="privacy.essentialDesc2"><strong>Essential Cookies:</strong> Required for the website to function properly</li>
+                <li data-i18n="privacy.analyticsDesc2"><strong>Analytics Cookies:</strong> Help us understand how visitors interact with our website</li>
+                <li data-i18n="privacy.marketingDesc2"><strong>Marketing Cookies:</strong> Used to track visitors across websites for advertising purposes</li>
+                <li data-i18n="privacy.functionalDesc2"><strong>Functional Cookies:</strong> Enable enhanced functionality and personalization</li>
+            </ul>
+
+            <h3 data-i18n="privacy.3rdParty">4. Third-Party Services</h3>
+            <p data-i18n="privacy.3rdPartyDesc">We may employ third-party companies such as Google Analytics and Google AdSense to facilitate our service and analyze how our service is used.</p>
+
+            <h3 data-i18n="privacy.adsense">5. Google AdSense</h3>
+            <p data-i18n="privacy.adsenseDesc">We use Google AdSense to display advertisements. Google may use cookies to serve ads based on your prior visits. You may opt out at Google Ads Settings.</p>
+
+            <h3 data-i18n="privacy.security">6. Data Security</h3>
+            <p data-i18n="privacy.securityDesc">The security of your data is important to us, but no method of transmission over the Internet is 100% secure.</p>
+
+            <h3 data-i18n="privacy.rights">7. Your Rights (GDPR/CCPA)</h3>
+            <p data-i18n="privacy.rightsDesc">If you are a European resident, you have rights to access, update, delete your data, object to processing, and more. California residents have additional rights under CCPA.</p>
+
+            <h3 data-i18n="privacy.children">8. Children's Privacy</h3>
+            <p data-i18n="privacy.childrenDesc">Our service does not address anyone under the age of 13.</p>
+
+            <h3 data-i18n="privacy.changes">9. Changes to This Policy</h3>
+            <p data-i18n="privacy.changesDesc">We may update our Privacy Policy from time to time. Changes are effective when posted on this page.</p>
+
+            <h3 data-i18n="privacy.contact">10. Contact Us</h3>
+            <p><span data-i18n="privacy.contactDesc">If you have any questions, please contact us at:</span> <a href="mailto:privacy@example.com">privacy@example.com</a></p>
+            <p style="margin-top:16px;font-size:12px;color:var(--text-secondary)"><span data-i18n="privacy.lastUpdated">Last Updated:</span> April 2026</p>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div class="privacy-modal-overlay" id="terms-modal-overlay"></div>
+    <div class="privacy-modal" id="terms-modal">
+        <div class="privacy-modal-header">
+            <h2 data-i18n="terms.title">Terms of Service</h2>
+            <button class="privacy-modal-close" id="terms-modal-close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="privacy-modal-body">
+            <h3 data-i18n="terms.acceptance">1. Acceptance of Terms</h3>
+            <p data-i18n="terms.acceptanceDesc">By accessing and using this website, you accept and agree to be bound by these Terms of Service. If you do not agree with any part of these terms, please do not use our service.</p>
+            
+            <h3 data-i18n="terms.serviceDesc">2. Description of Service</h3>
+            <p data-i18n="terms.serviceDesc">This service is provided "as is" without any warranties. We reserve the right to modify or discontinue the service at any time without notice.</p>
+
+            <h3 data-i18n="terms.userData">3. User Data</h3>
+            <p data-i18n="terms.userDataDesc">All JSON data processed by this tool is performed locally in your browser. We do not store, collect, or transmit your data to any server. You are solely responsible for the backup and security of your own data.</p>
+
+            <h3 data-i18n="terms.prohibited">4. Prohibited Uses</h3>
+            <p data-i18n="terms.prohibitedDesc">You agree not to use this service for any unlawful purposes or in violation of any applicable laws. You may not attempt to gain unauthorized access to any systems or networks.</p>
+
+            <h3 data-i18n="terms.intellectualProperty">5. Intellectual Property</h3>
+            <p data-i18n="terms.intellectualPropertyDesc">The service and its original content, features, and functionality are owned by us and are protected by international copyright laws.</p>
+
+            <h3 data-i18n="terms.limitation">6. Limitation of Liability</h3>
+            <p data-i18n="terms.limitationDesc">In no event shall we be liable for any indirect, incidental, special, or consequential damages that result from the use of or inability to use this service.</p>
+
+            <h3 data-i18n="terms.changes">7. Changes to Terms</h3>
+            <p data-i18n="terms.changesDesc">We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on this page.</p>
+
+            <h3 data-i18n="terms.contact">8. Contact Us</h3>
+            <p><span data-i18n="terms.contactDesc">If you have any questions about these Terms of Service, please contact us at:</span> <a href="mailto:support@jsontools.example.com">support@jsontools.example.com</a></p>
+            <p style="margin-top:16px;font-size:12px;color:var(--text-secondary)"><span data-i18n="terms.lastUpdated">Last Updated:</span> April 2026</p>
+        </div>
+    </div>
+
+    <!-- CSV Export Modal -->
+    <div class="modal-overlay" id="csv-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 data-i18n="csv.title">Export CSV</h3>
+                <button class="modal-close" id="modal-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Array Selection -->
+                <div class="array-section" id="array-section">
+                    <div class="section-title" data-i18n="csv.selectSource">Select Data Source</div>
+                    <div class="array-list" id="array-list"></div>
+                </div>
+
+                <!-- Field Selection -->
+                <div class="array-section" id="field-section">
+                    <div class="section-title" data-i18n="csv.selectFields">Select Export Fields</div>
+                    <div class="field-actions">
+                        <button class="btn btn-small" id="btn-select-all" data-i18n="csv.selectAll">Select All</button>
+                        <button class="btn btn-small" id="btn-deselect-all" data-i18n="csv.deselectAll">Deselect All</button>
+                    </div>
+                    <div class="field-grid" id="field-list"></div>
+                    <div class="selected-info" id="field-info"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="btn-cancel" data-i18n="csv.cancel">Cancel</button>
+                <button class="btn btn-primary" id="btn-do-export">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span data-i18n="csv.export">Export</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-main">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <div class="footer-logo">{}</div>
+                        <span class="footer-brand-name" data-i18n="app.title">JSON Tools</span>
+                    </div>
+                    <p data-i18n="footer.about">A free online tool for formatting JSON data and exporting to CSV. Fast, secure, and easy to use.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 data-i18n="footer.quickLinks">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" id="footer-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="footer.privacy">Privacy Policy</span></a></li>
+                        <li><a href="#" id="footer-terms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="footer.terms">Terms of Service</span></a></li>
+                        <li><a href="#" id="footer-cookies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="footer.cookies">Cookie Policy</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-i18n="footer.resources">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" id="footer-api"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="footer.api">API Documentation</span></a></li>
+                        <li><a href="#" id="footer-help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg><span data-i18n="footer.help">Help Center</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-i18n="footer.contact">Contact</h4>
+                    <div class="footer-contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <a href="mailto:support@jsontools.example.com">support@jsontools.example.com</a>
+                    </div>
+                    <div class="footer-contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                        <span>www.jsontools.example.com</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">© 2026 JSON Tools. <span data-i18n="footer.rights">All rights reserved.</span></div>
+                <div class="footer-legal">
+                    <a href="#" id="footer-privacy-2" data-i18n="footer.privacy">Privacy Policy</a>
+                    <a href="#" id="footer-terms-2" data-i18n="footer.terms">Terms of Service</a>
+                    <a href="#" id="footer-cookies-2" data-i18n="footer.cookies">Cookie Policy</a>
+                    <div class="language-selector">
+                        <button class="language-btn" id="language-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                            <span id="current-lang" data-i18n="lang.english">English</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="language-dropdown" id="language-dropdown">
+                            <div class="language-option active" data-lang="en">
+                                <span class="language-option-flag">🇺🇸</span>
+                                <span class="language-option-name" data-i18n="lang.english">English</span>
+                                <svg class="language-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="language-option" data-lang="zh">
+                                <span class="language-option-flag">🇨🇳</span>
+                                <span class="language-option-name" data-i18n="lang.chinese">中文</span>
+                                <svg class="language-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="language-option" data-lang="de">
+                                <span class="language-option-flag">🇩🇪</span>
+                                <span class="language-option-name" data-i18n="lang.german">Deutsch</span>
+                                <svg class="language-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="language-option" data-lang="fr">
+                                <span class="language-option-flag">🇫🇷</span>
+                                <span class="language-option-name" data-i18n="lang.french">Français</span>
+                                <svg class="language-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="language-option" data-lang="es">
+                                <span class="language-option-flag">🇪🇸</span>
+                                <span class="language-option-name" data-i18n="lang.spanish">Español</span>
+                                <svg class="language-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="language-option" data-lang="ja">
+                                <span class="language-option-flag">🇯🇵</span>
+                                <span class="language-option-name" data-i18n="lang.japanese">日本語</span>
+                                <svg class="language-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                            <div class="language-option" data-lang="pt">
+                                <span class="language-option-flag">🇧🇷</span>
+                                <span class="language-option-name" data-i18n="lang.portuguese">Português</span>
+                                <svg class="language-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Initialize i18n after page load
+        document.addEventListener('DOMContentLoaded', initI18n);
+    </script>
+</body>
+</html>
